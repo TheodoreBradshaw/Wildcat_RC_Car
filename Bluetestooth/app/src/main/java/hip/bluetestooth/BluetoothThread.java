@@ -47,43 +47,47 @@ public class BluetoothThread implements Runnable {
                     Utils.doLog("Found the ARDUINO");
 
                     ParcelUuid[] puuid = device.getUuids();
+
+                    final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");    // FROM THE INTERNET
+                    boolean anySucceeded = false;
+
+                    BluetoothSocket sock = null;
                     for (ParcelUuid id : puuid) {
-                        Utils.doLog( id.getUuid().toString());
-                    }
-
-
-                    // Create rfcomm socket
-                    BluetoothSocket sock;
-                    //BluetoothSocket sock = device.createRfcommSocketToServiceRecord("2a37");
-                    try {
-                        //sock = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("0000-00-00-00-00180d"));
-                        sock = device.createInsecureRfcommSocketToServiceRecord(UUID.fromString("0000180d-0000-1000-8000-00805f9b34fb"));
-                    } catch (IOException e) {
-                        Utils.doLog( "Failed to create rfcomm socket");
-                        Utils.doLog( e.getMessage());
-                        return;
-                    }
-
-                    // Connect to socket
-                    for (ParcelUuid id : puuid) {
-                        Utils.doLog( "Trying: " + id.getUuid().toString());
-
+                        // Create rfcomm socket
                         try {
-                            sock.connect();
-                            Utils.doLog( "THIS ONE WORKD: " + id.getUuid().toString());
-                        } catch (IOException e) {
+                            //sock = device.createRfcommSocketToServiceRecord(myUUID);
+                            sock = device.createInsecureRfcommSocketToServiceRecord(id.getUuid());
 
-                            Utils.doLog("Failed to connect");
+                            Utils.doLog( "Trying: " + id.getUuid().toString());
+
+                            try {
+                                sock.connect();
+                                Utils.doLog( "THIS ONE WORKD: " + id.getUuid().toString());
+                                anySucceeded = true;
+                                break;
+                            } catch (IOException e) {
+
+                                Utils.doLog("Failed to connect");
+                                Utils.doLog( e.getMessage());
+                            }
+
+                            try {
+                                if (sock != null) {
+                                    sock.close();
+                                }
+                            } catch (IOException e1) {}
+                        } catch (IOException e) {
+                            Utils.doLog( "Failed to create rfcomm socket");
                             Utils.doLog( e.getMessage());
                         }
+                   }
+
+                    // Don't believe this lie!
+                    if (anySucceeded) {
+                        Utils.doLog("Connection successful");
+                    } else {
+                        Utils.doLog("Nothing but failure");
                     }
-
-
-                    try {
-                        sock.close();
-                    } catch (IOException e1) {}
-
-                    //Utils.doLog( "Connection successful");
                     return;
                 }
             }
