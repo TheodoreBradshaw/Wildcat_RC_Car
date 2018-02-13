@@ -27,10 +27,11 @@ BLEPeripheral blePeripheral;       // BLE Peripheral Device (the board you're pr
 BLEService WildcatService("180D"); // BLE Heart Rate Service
 
 // BLE Heart Rate Measurement Characteristic"
-BLECharacteristic WildcatChar("2A37",  // standard 16-bit characteristic UUID
-    BLERead | BLENotify, 2);
-BLECharacteristic WildcatChar2("2A38",  // standard 16-bit characteristic UUID
-    BLERead | BLENotify , 4);// remote clients will be able to get notifications if this characteristic changes
+BLECharacteristic WildcatChar("2A37",  BLERead | BLENotify | BLEWrite, 2); // standard 16-bit characteristic UUID
+   
+BLECharacteristic WildcatChar2("2A38",  BLERead | BLENotify | BLEWrite, 4); // standard 16-bit characteristic UUID
+
+//remote clients will be able to get notifications if this characteristic changes
                               // the characteristic is 2 bytes long as the first field needs to be "Flags" as per BLE specifications
                               // https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
 
@@ -50,7 +51,7 @@ void setup() {
   blePeripheral.addAttribute(WildcatService);   // Add the BLE Heart Rate service
   blePeripheral.addAttribute(WildcatChar); // add the Heart Rate Measurement characteristic
 
-  blePeripheral.addAttribute(WildcatChar2); // add the Heart Rate Measurement characteristic
+  //blePeripheral.addAttribute(WildcatChar2); // add the Heart Rate Measurement characteristic
 
   /* Now activate the BLE device.  It will start continuously transmitting BLE
      advertising packets and will be visible to remote BLE central devices
@@ -80,6 +81,17 @@ void loop() {
         previousMillis = currentMillis;
         updateHeartRate();
       }
+      if (WildcatChar.written()) {
+        if (const byte * inptr = WildcatChar.value()) {
+          Serial.println("Wrote a 1");
+          if (inptr) {
+            Serial.print("inptr[0] ");
+            Serial.println(inptr[0]);
+          }
+        } else {
+          Serial.println("Wrote a 0");
+        }
+      }
     }
     // when the central disconnects, turn off the LED:
     digitalWrite(4, LOW);
@@ -99,10 +111,10 @@ void updateHeartRate() {
   if (heartRate != oldHeartRate) {      // if the heart rate has changed
     Serial.print("Heart Rate is now: "); // print it
     Serial.println(heartRate);
-    const unsigned char WildcatCharArray[2] = { 0, (char)heartRate };
+    const unsigned char WildcatCharArray[2] = { 0, (unsigned char)heartRate };
     WildcatChar.setValue(WildcatCharArray, 2);  // and update the heart rate measurement characteristic
-        const unsigned char WildcatCharArray2[2] = { 0, (char)heartRate +1};
-    WildcatChar2.setValue(WildcatCharArray2, 2);  // and update the heart rate measurement characteristic
+    const unsigned char WildcatCharArray2[2] = { 0, (unsigned char)heartRate +1};
+   // WildcatChar2.setValue(WildcatCharArray2, 2);  // and update the heart rate measurement characteristic
     // oldHeartRate = heartRate;           // save the level for next comparison
   }
 }
