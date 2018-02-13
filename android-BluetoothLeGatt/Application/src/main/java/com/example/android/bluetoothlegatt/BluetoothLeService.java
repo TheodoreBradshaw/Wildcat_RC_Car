@@ -16,6 +16,7 @@
 
 package com.example.android.bluetoothlegatt;
 
+import android.app.AlertDialog;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -31,9 +32,16 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.List;
 import java.util.UUID;
+
+import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_READ;
+import static android.bluetooth.BluetoothGattCharacteristic.PERMISSION_WRITE;
+import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_BROADCAST;
+import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_NOTIFY;
+import static android.bluetooth.BluetoothGattCharacteristic.PROPERTY_WRITE;
 
 /**
  * Service for managing connection and data communication with a GATT server hosted on a
@@ -119,6 +127,22 @@ public class BluetoothLeService extends Service {
         sendBroadcast(intent);
     }
 
+    private BluetoothGattCharacteristic characteristic = null;
+    public boolean sendCharacteristic(byte action) {
+        // TODO figure out how to generate our own characteristics
+        //BluetoothGattCharacteristic characteristic = new BluetoothGattCharacteristic(UUID_HEART_RATE_MEASUREMENT, PROPERTY_BROADCAST | PROPERTY_WRITE | PROPERTY_NOTIFY, PERMISSION_WRITE | PERMISSION_READ );
+        if (characteristic == null) {
+            Log.d(TAG, "There is no active characteristic");
+            Toast.makeText(this, "Please read the heartbeat characteristic first", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        byte[] byte_array = new byte[1];
+        byte_array[0] = action;
+
+        characteristic.setValue(byte_array);
+        return mBluetoothGatt.writeCharacteristic(characteristic);
+    }
+
     private void broadcastUpdate(final String action,
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
@@ -138,6 +162,8 @@ public class BluetoothLeService extends Service {
             }
             final int heartRate = characteristic.getIntValue(format, 1);
             Log.d(TAG, String.format("Received heart rate: %d", heartRate));
+
+            this.characteristic = characteristic;
             intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
         } else {
             // For all other profiles, writes the data formatted in HEX.

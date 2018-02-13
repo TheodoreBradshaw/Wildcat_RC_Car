@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
@@ -152,6 +153,25 @@ public class DeviceControlActivity extends Activity {
         mDataField.setText(R.string.no_data);
     }
 
+    private class ButtonClickListener implements View.OnClickListener {
+        private final byte action;
+        public ButtonClickListener(byte action) {
+            this.action = action;
+        }
+
+        @Override
+        public void onClick(View view) {
+            boolean ret = mBluetoothLeService.sendCharacteristic(this.action);
+            Log.d(TAG, "Did we send the action (" + this.action + ") successfully? " + ret);
+        }
+    }
+
+    private final byte ACTION_STOP       = 0x0;
+    private final byte ACTION_FORWARD    = 0x1;
+    private final byte ACTION_BACKWARD   = 0x2;
+    private final byte ACTION_LEFT       = 0x3;
+    private final byte ACTION_RIGHT      = 0x4;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -172,6 +192,13 @@ public class DeviceControlActivity extends Activity {
         getActionBar().setDisplayHomeAsUpEnabled(true);
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+
+        // Connect button callbacks
+        ((Button) findViewById(R.id.forward_btn)).setOnClickListener(new ButtonClickListener(ACTION_FORWARD));
+        ((Button) findViewById(R.id.backward_btn)).setOnClickListener(new ButtonClickListener(ACTION_BACKWARD));
+        ((Button) findViewById(R.id.stop_btn)).setOnClickListener(new ButtonClickListener(ACTION_STOP));
+        ((Button) findViewById(R.id.left_btn)).setOnClickListener(new ButtonClickListener(ACTION_LEFT));
+        ((Button) findViewById(R.id.right_btn)).setOnClickListener(new ButtonClickListener(ACTION_RIGHT));
     }
 
     @Override
