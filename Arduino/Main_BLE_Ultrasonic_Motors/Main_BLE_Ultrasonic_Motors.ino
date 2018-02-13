@@ -28,11 +28,14 @@ const int POWER_BRAKE_PIN = 8;
 const int POWER_PWM_PIN = 11;
 
 /*Directional Motor*/
-const int DIR_DIR_PIN = 9;
+const int DIR_DIR_PIN = 12;
+const int DIR_BRAKE_PIN = 9;
 const int DIR_PWM_PIN = 3;
 
 long duration;
 int distance;
+
+int state;
 
 void setup() {
   Serial.begin(9600);    // initialize serial communication
@@ -66,8 +69,8 @@ void setup() {
   analogWrite(POWER_PWM_PIN, 255);
 
   // Init the directional motor
-  //pinMode(12, OUTPUT);  // Channel A motor direction
-  pinMode(DIR_DIR_PIN, OUTPUT);   // Channel A break
+  pinMode(DIR_DIR_PIN, OUTPUT);  // Channel A motor direction
+  pinMode(DIR_BRAKE_PIN, OUTPUT);   // Channel A break
   pinMode(DIR_PWM_PIN, OUTPUT);   // Channel A PWM (locked to max)
   analogWrite(DIR_PWM_PIN, 255);
 
@@ -87,18 +90,23 @@ void brake() {
   digitalWrite(POWER_BRAKE_PIN, HIGH);    // Engage brake
 }
 
-void left() {
-  digitalWrite(DIR_DIR_PIN, HIGH);  
+void right() {
+  digitalWrite(DIR_DIR_PIN, HIGH);
+  digitalWrite(DIR_BRAKE_PIN, LOW); 
 }
 
-void right() {
-  digitalWrite(DIR_DIR_PIN, LOW);  
+void left() {
+  digitalWrite(DIR_DIR_PIN, LOW);
+  digitalWrite(DIR_BRAKE_PIN, LOW);  
+}
+
+void straight() {
+  digitalWrite(DIR_BRAKE_PIN, HIGH);
 }
 
 void do_ultrasonic_things() {
   // Clears the trig pin
   digitalWrite(TRIG_PIN, LOW);
-  delayMicroseconds(2);
 
 // Sets the TRIG_PIN on HIGH state for 10 micro seconds
   digitalWrite(TRIG_PIN, HIGH);
@@ -133,11 +141,17 @@ void loop() {
     digitalWrite(4, HIGH);
 
     byte bytearr[1] = {0};
-    WildcatChar.setValue(bytearr, 5);  // update the heart rate measurement characteristic
+    WildcatChar.setValue(bytearr, 7);  // update the heart rate measurement characteristic
 
     // check the heart rate measurement every 200ms
     // as long as the central is still connected:
+    int loopCount = 0;
     while (central.connected()) {
+
+      if (loopCount % 3000 == 0) {
+        do_ultrasonic_things();
+      }
+      
       //long currentMillis = millis();
       if (WildcatChar.written()) {
         const byte* inptr = WildcatChar.value();
@@ -159,28 +173,42 @@ void loop() {
             case 4:
                 Serial.println("Would turn right");
                 break;
+              case 5:
+                Serial.println("Would turn Strait");
+                break;
 #else
             case 0:
                 brake();
+                Serial.println("Would brake");
                 break;
             case 1: 
                 setReverse(false);
                 go();
+                Serial.println("Would go forward");
                 break;
               case 2:
                 setReverse(true);
                 go();
+                Serial.println("Would go backward");
                 break;
               case 3:
                 left();
+                Serial.println("Would turn left");
                 break;
               case 4:
                 right();
+                Serial.println("Would turn right");
+                break;
+              case 5:
+                straight();
+                Serial.println("Would turn Strait");
                 break;
 #endif
           }
         }
       }
+
+      loopCount++;
     }
     // when the central disconnects, turn off the LED:
     digitalWrite(4, LOW);

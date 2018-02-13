@@ -1,22 +1,4 @@
 /*
-   Copyright (c) 2015 Intel Corporation.  All rights reserved.
-
-   This library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
-
-   This library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License along with this library; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-
-/*
    This sketch example partially implements the standard Bluetooth Low-Energy Heart Rate service.
    For more information: https://developer.bluetooth.org/gatt/services/Pages/ServicesHome.aspx
 */
@@ -28,12 +10,10 @@ BLEService WildcatService("180D"); // BLE Heart Rate Service
 
 // BLE Heart Rate Measurement Characteristic"
 BLECharacteristic WildcatChar("2A37",  BLERead | BLENotify | BLEWrite, 2); // standard 16-bit characteristic UUID
-   
-BLECharacteristic WildcatChar2("2A38",  BLERead | BLENotify | BLEWrite, 4); // standard 16-bit characteristic UUID
 
-//remote clients will be able to get notifications if this characteristic changes
-                              // the characteristic is 2 bytes long as the first field needs to be "Flags" as per BLE specifications
-                              // https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
+// remote clients will be able to get notifications if this characteristic changes
+// the characteristic is 2 bytes long as the first field needs to be "Flags" as per BLE specifications
+// https://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
 
 int oldHeartRate = 0;  // last heart rate reading from analog input
 long previousMillis = 0;  // last time the heart rate was checked, in ms
@@ -50,8 +30,6 @@ void setup() {
   blePeripheral.setAdvertisedServiceUuid(WildcatService.uuid());  // add the service UUID
   blePeripheral.addAttribute(WildcatService);   // Add the BLE Heart Rate service
   blePeripheral.addAttribute(WildcatChar); // add the Heart Rate Measurement characteristic
-
-  //blePeripheral.addAttribute(WildcatChar2); // add the Heart Rate Measurement characteristic
 
   /* Now activate the BLE device.  It will start continuously transmitting BLE
      advertising packets and will be visible to remote BLE central devices
@@ -101,7 +79,7 @@ void loop() {
 }
 
 void updateHeartRate() {
-      Serial.print("Looping... \n "); // print it
+  Serial.print("Looping... \n "); // print it
 
   /* Read the current voltage level on the A0 analog input pin.
      This is used here to simulate the heart rate's measurement.
@@ -113,8 +91,7 @@ void updateHeartRate() {
     Serial.println(heartRate);
     const unsigned char WildcatCharArray[2] = { 0, (unsigned char)heartRate };
     WildcatChar.setValue(WildcatCharArray, 2);  // and update the heart rate measurement characteristic
-    const unsigned char WildcatCharArray2[2] = { 0, (unsigned char)heartRate +1};
-   // WildcatChar2.setValue(WildcatCharArray2, 2);  // and update the heart rate measurement characteristic
+    const unsigned char WildcatCharArray2[2] = { 0, (unsigned char)heartRate + 1};
     // oldHeartRate = heartRate;           // save the level for next comparison
   }
 }
