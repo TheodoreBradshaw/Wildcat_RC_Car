@@ -19,8 +19,10 @@ int oldHeartRate = 0;  // last heart rate reading from analog input
 long previousMillis = 0;  // last time the heart rate was checked, in ms
 
 /*Ultrasonic Sensors*/
-const int TRIG_PIN = 6;
-const int ECHO_PIN = 7;
+const int FRONT_TRIG_PIN = 5;
+const int FRONT_ECHO_PIN = 4;
+const int BACK_TRIG_PIN = 6;
+const int BACK_ECHO_PIN = 7;
 
 /*Power Motor */
 const int POWER_DIR_PIN = 13;
@@ -32,14 +34,26 @@ const int DIR_DIR_PIN = 12;
 const int DIR_BRAKE_PIN = 9;
 const int DIR_PWM_PIN = 3;
 
-long duration;
-int distance;
+long frontDuration;
+int frontDistance = 0;
+long backDuration;
+int backDistance = 0;
 
 int state;
 
+bool isFrontObstacle = false;
+bool isBackObstacle = false;
+
+const int BRAKE_INPUT = 0;
+const int FORWARD_INPUT = 1;
+const int BACKWARDS_INPUT = 2;
+const int LEFT_INPUT = 3;
+const int RIGHT_INPUT = 4;
+const int STRAIGHT_INPUT = 5;
+
+
 void setup() {
   Serial.begin(9600);    // initialize serial communication
-  pinMode(4, OUTPUT);   // initialize the LED on pin 13 to indicate when a central is connected
   pinMode(LED_BUILTIN, OUTPUT);  // LED - Board
 
   //Bluetooth Stuff
@@ -59,8 +73,10 @@ void setup() {
   Serial.println("Bluetooth device active, waiting for connections...");
 
   // Init Ultrasonic sensor
-  pinMode(TRIG_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
+  pinMode(FRONT_TRIG_PIN, OUTPUT);
+  pinMode(FRONT_ECHO_PIN, INPUT);
+  pinMode(BACK_TRIG_PIN, OUTPUT);
+  pinMode(BACK_ECHO_PIN, INPUT);
 
   // Init the power (forward/reverse) motor
   pinMode(POWER_DIR_PIN, OUTPUT);  // Channel B motor direction
@@ -82,7 +98,7 @@ void setReverse(bool isInReverse) {
   digitalWrite(POWER_DIR_PIN, isInReverse ? HIGH : LOW);
 }
 
-void go() {
+void disableBrake() {
   digitalWrite(POWER_BRAKE_PIN, LOW);     // Disable brake
 }
 
@@ -92,12 +108,12 @@ void brake() {
 
 void right() {
   digitalWrite(DIR_DIR_PIN, HIGH);
-  digitalWrite(DIR_BRAKE_PIN, LOW); 
+  digitalWrite(DIR_BRAKE_PIN, LOW);
 }
 
 void left() {
   digitalWrite(DIR_DIR_PIN, LOW);
-  digitalWrite(DIR_BRAKE_PIN, LOW);  
+  digitalWrite(DIR_BRAKE_PIN, LOW);
 }
 
 void straight() {
@@ -106,22 +122,30 @@ void straight() {
 
 void do_ultrasonic_things() {
   // Clears the trig pin
-  digitalWrite(TRIG_PIN, LOW);
+  digitalWrite(FRONT_TRIG_PIN, LOW);
+  digitalWrite(BACK_TRIG_PIN, LOW);
 
-// Sets the TRIG_PIN on HIGH state for 10 micro seconds
-  digitalWrite(TRIG_PIN, HIGH);
+  // Sets the TRIG_PIN on HIGH state for 10 micro seconds
+  digitalWrite(FRONT_TRIG_PIN, HIGH);
   delayMicroseconds(10);
-  digitalWrite(TRIG_PIN, LOW);
+  digitalWrite(FRONT_TRIG_PIN, LOW);
+  
+  frontDuration = pulseIn(FRONT_ECHO_PIN, HIGH);
 
-// Reads the ECHO_PIN, returns the sound wave travel time in microseconds
-  duration = pulseIn(ECHO_PIN, HIGH);
+  digitalWrite(BACK_TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(BACK_TRIG_PIN, LOW);
 
-  //Serial.print("Duration: ");
-  //Serial.println(duration);
-  distance = duration*0.034/2;  //distance in CM
+  // Reads the FRONT_ECHO_PIN, returns the sound wave travel time in microseconds
+  backDuration =  pulseIn(BACK_ECHO_PIN, HIGH);
+  
+  frontDistance = frontDuration * 0.034 / 2; //frontDistance in CM
+  backDistance = backDuration * 0.034 / 2; //frontDistance in CM
 
-  Serial.print("Distance (cm): ");
-  Serial.println(distance);
+  //Serial.print("BackDistance (cm): ");
+  //Serial.println(backDistance);
+  Serial.print("FrontDistance (cm): ");
+  Serial.println(frontDistance);
 }
 
 //#define DEBUG
@@ -137,8 +161,6 @@ void loop() {
     Serial.print("Connected to central: ");
     // print the central's MAC address:
     Serial.println(central.address());
-    // turn on the LED to indicate the connection:
-    digitalWrite(4, HIGH);
 
     byte bytearr[1] = {0};
     WildcatChar.setValue(bytearr, 7);  // update the heart rate measurement characteristic
@@ -146,72 +168,82 @@ void loop() {
     // check the heart rate measurement every 200ms
     // as long as the central is still connected:
     int loopCount = 0;
-    while (central.connected()) {
-
+    bool isReverse = false;
+    while (central.connected())
+    {
+      
       if (loopCount % 3000 == 0) {
         do_ultrasonic_things();
+        // Front Obstacle
+        if (frontDistance < 50) {
+          isFrontObstacle = true;
+        }
+        else {
+          isFrontObstacle = false;
+        }
+        // Back Obstacle
+        if (backDistance < 50) {
+          isBackObstacle = true;
+        }
+        else {
+          isBackObstacle = false;
+        }
       }
-      
+
       //long currentMillis = millis();
       if (WildcatChar.written()) {
         const byte* inptr = WildcatChar.value();
         if (inptr) {
-          switch (inptr[0]){
-#ifdef DEBUG
-            case 0:
-                Serial.println("Would brake");
-                break;
-            case 1:
-                Serial.println("Would go forward");
-                break;
-            case 2:
-                Serial.println("Would go backward");
-                break;
-            case 3:
-                Serial.println("Would turn left");
-                break;
-            case 4:
-                Serial.println("Would turn right");
-                break;
-              case 5:
-                Serial.println("Would turn Strait");
-                break;
-#else
-            case 0:
-                brake();
-                Serial.println("Would brake");
-                break;
-            case 1: 
-                setReverse(false);
-                go();
-                Serial.println("Would go forward");
-                break;
-              case 2:
-                setReverse(true);
-                go();
-                Serial.println("Would go backward");
-                break;
-              case 3:
-                left();
-                Serial.println("Would turn left");
-                break;
-              case 4:
-                right();
-                Serial.println("Would turn right");
-                break;
-              case 5:
-                straight();
-                Serial.println("Would turn Strait");
-                break;
-#endif
+          switch (inptr[0]) {
+            // Drive Motor
+            case BRAKE_INPUT:
+              isReverse = false;
+              brake();
+              Serial.println("Would stop");
+              break;
+            case FORWARD_INPUT:
+              setReverse(false);
+              isReverse = true;
+              disableBrake();
+              Serial.println("Would go forward");
+              break;
+            case BACKWARDS_INPUT:
+              isFrontObstacle = false;
+              isReverse = true;
+              setReverse(true);
+              disableBrake();
+              Serial.println("Would go backward");
+              break;
+            
+            // Direction Motor
+            case LEFT_INPUT:
+              left();
+              Serial.println("Would turn left");
+              break;
+            case RIGHT_INPUT:
+              right();
+              Serial.println("Would turn right");
+              break;
+            case STRAIGHT_INPUT:
+              straight();
+              Serial.println("Would turn Strait");
+              break;
           }
         }
       }
 
+      if (isFrontObstacle && !isReverse) {
+        // Serial.println("braking");
+        brake();
+      }
+      if (isBackObstacle && isReverse){
+        brake();
+       }
       loopCount++;
     }
+
     // when the central disconnects, turn off the LED:
-    digitalWrite(4, LOW);
+    //digitalWrite(4, LOW);
     brake();  // stop driving
     Serial.print("Disconnected from central: ");
     Serial.println(central.address());
