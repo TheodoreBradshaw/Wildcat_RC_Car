@@ -23,6 +23,10 @@ const int FRONT_TRIG_PIN = 5;
 const int FRONT_ECHO_PIN = 4;
 const int BACK_TRIG_PIN = 6;
 const int BACK_ECHO_PIN = 7;
+const int FRONT_RIGHT_TRIG_PIN = A4; //blue
+const int FRONT_RIGHT_ECHO_PIN = A5; //purple
+const int FRONT_LEFT_TRIG_PIN = A2; //grey
+const int FRONT_LEFT_ECHO_PIN = A3; //white
 
 /*Power Motor */
 const int POWER_DIR_PIN = 13;
@@ -38,6 +42,10 @@ long frontDuration;
 int frontDistance = 0;
 long backDuration;
 int backDistance = 0;
+long rightDuration;
+int rightDistance = 0;
+long leftDuration;
+int leftDistance = 0;
 
 int state;
 
@@ -77,6 +85,10 @@ void setup() {
   pinMode(FRONT_ECHO_PIN, INPUT);
   pinMode(BACK_TRIG_PIN, OUTPUT);
   pinMode(BACK_ECHO_PIN, INPUT);
+  pinMode(FRONT_RIGHT_TRIG_PIN, OUTPUT);
+  pinMode(FRONT_RIGHT_ECHO_PIN, INPUT);
+  pinMode(FRONT_LEFT_TRIG_PIN, OUTPUT);
+  pinMode(FRONT_LEFT_ECHO_PIN, INPUT);
 
   // Init the power (forward/reverse) motor
   pinMode(POWER_DIR_PIN, OUTPUT);  // Channel B motor direction
@@ -121,31 +133,45 @@ void straight() {
 }
 
 void do_ultrasonic_things() {
-  // Clears the trig pin
+  // Clears the trig pins
   digitalWrite(FRONT_TRIG_PIN, LOW);
+  digitalWrite(FRONT_RIGHT_TRIG_PIN, LOW);
+  digitalWrite(FRONT_LEFT_TRIG_PIN, LOW);
   digitalWrite(BACK_TRIG_PIN, LOW);
 
   // Sets the TRIG_PIN on HIGH state for 10 micro seconds
   digitalWrite(FRONT_TRIG_PIN, HIGH);
   delayMicroseconds(10);
   digitalWrite(FRONT_TRIG_PIN, LOW);
-  
   frontDuration = pulseIn(FRONT_ECHO_PIN, HIGH);
-
+  frontDistance = frontDuration * 0.034 / 2; //frontDistance in CM
+  
+  digitalWrite(FRONT_RIGHT_TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(FRONT_RIGHT_TRIG_PIN, LOW);
+  rightDuration = pulseIn(FRONT_RIGHT_ECHO_PIN, HIGH);
+  rightDistance = rightDuration * 0.034 / 2; //frontDistance in CM
+  
+  digitalWrite(FRONT_LEFT_TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(FRONT_LEFT_TRIG_PIN, LOW);
+  leftDuration = pulseIn(FRONT_LEFT_ECHO_PIN, HIGH);
+  leftDistance = leftDuration * 0.034 / 2; //frontDistance in CM
+  
   digitalWrite(BACK_TRIG_PIN, HIGH);
   delayMicroseconds(10);
   digitalWrite(BACK_TRIG_PIN, LOW);
-
-  // Reads the FRONT_ECHO_PIN, returns the sound wave travel time in microseconds
   backDuration =  pulseIn(BACK_ECHO_PIN, HIGH);
-  
-  frontDistance = frontDuration * 0.034 / 2; //frontDistance in CM
   backDistance = backDuration * 0.034 / 2; //frontDistance in CM
 
-  //Serial.print("BackDistance (cm): ");
-  //Serial.println(backDistance);
+  Serial.print("BackDistance (cm): ");
+  Serial.println(backDistance);
   Serial.print("FrontDistance (cm): ");
   Serial.println(frontDistance);
+  Serial.print("RightDistance (cm): ");
+  Serial.println(rightDistance);
+  Serial.print("LeftDistance (cm): ");
+  Serial.println(leftDistance);
 }
 
 //#define DEBUG
