@@ -66,35 +66,76 @@
                   android:textSize="18sp"/>
     </LinearLayout>
     <LinearLayout   android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="right">
+        <Button android:id="@+id/auto_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="18sp"
+            android:text="AUTO"/>
+
+    </LinearLayout>
+    <LinearLayout   android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="10dp">
+                    android:layout_margin="10dp"
+                    android:gravity="center_horizontal">
         <Button android:id="@+id/forward_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:textSize="18sp"
                 android:text="FWD"/>
-        <Button android:id="@+id/backward_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="18sp"
-            android:text="BWD"/>
-        <Button android:id="@+id/stop_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="18sp"
-            android:text="STP"/>
+
+    </LinearLayout>
+    <LinearLayout   android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal">
+
         <Button android:id="@+id/left_btn"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:textSize="18sp"
-            android:text="LFT"/>
+            android:text="LFT"
+            android:layout_gravity="center_horizontal"/>
+        <Button android:id="@+id/strait_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="18sp"
+            android:text="STR"/>
         <Button android:id="@+id/right_btn"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:textSize="18sp"
             android:text="RGT"/>
     </LinearLayout>
+    <LinearLayout   android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center_horizontal">
+        <Button android:id="@+id/stop_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="18sp"
+            android:text="STP"/>
+    </LinearLayout>
+    <LinearLayout   android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:gravity="center_horizontal">
+        <Button android:id="@+id/backward_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="18sp"
+            android:text="BWD"/>
+    </LinearLayout>
+
     <ExpandableListView android:id="@+id/gatt_services_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>

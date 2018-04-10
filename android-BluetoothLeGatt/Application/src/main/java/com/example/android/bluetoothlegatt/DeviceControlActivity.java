@@ -171,6 +171,8 @@ public class DeviceControlActivity extends Activity {
     private final byte ACTION_BACKWARD   = 0x2;
     private final byte ACTION_LEFT       = 0x3;
     private final byte ACTION_RIGHT      = 0x4;
+    private final byte ACTION_STRAIT     = 0x5;
+    private final byte ACTION_AUTO       = 0x6;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -199,6 +201,9 @@ public class DeviceControlActivity extends Activity {
         ((Button) findViewById(R.id.stop_btn)).setOnClickListener(new ButtonClickListener(ACTION_STOP));
         ((Button) findViewById(R.id.left_btn)).setOnClickListener(new ButtonClickListener(ACTION_LEFT));
         ((Button) findViewById(R.id.right_btn)).setOnClickListener(new ButtonClickListener(ACTION_RIGHT));
+        ((Button) findViewById(R.id.strait_btn)).setOnClickListener(new ButtonClickListener(ACTION_STRAIT));
+        ((Button) findViewById(R.id.auto_btn)).setOnClickListener(new ButtonClickListener(ACTION_AUTO));
+
     }
 
     @Override
