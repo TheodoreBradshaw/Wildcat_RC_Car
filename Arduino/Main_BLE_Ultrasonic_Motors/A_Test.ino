@@ -41,8 +41,10 @@ void setup() {
   analogWrite(DIR_PWM_PIN, 255);
 
 
-  pinMode(1, OUTPUT); //LED
-  pinMode(2, OUTPUT); //LED
+  pinMode(FRONT_LED, OUTPUT); //LED
+  //pinMode(LEFT_LED, OUTPUT); //LED
+  //  pinMode(RIGHT_LED, OUTPUT); //LED
+  pinMode(BACK_LED, OUTPUT); //LED
 
   brake();
 }
@@ -86,6 +88,7 @@ void read_sonar_distances() {
   digitalWrite(FRONT_TRIG_PIN, LOW);
   frontDuration = pulseIn(FRONT_ECHO_PIN, HIGH);
   frontDistance = frontDuration * 0.034 / 2; //frontDistance in CM
+
   digitalWrite(FRONT_RIGHT_TRIG_PIN, HIGH);
   delayMicroseconds(10);
   digitalWrite(FRONT_RIGHT_TRIG_PIN, LOW);
@@ -108,10 +111,10 @@ void read_sonar_distances() {
   Serial.println(backDistance);
   Serial.print("FrontDistance (cm): ");
   Serial.println(frontDistance);
-  //  Serial.print("RightDistance (cm): ");
-  //  Serial.println(rightDistance);
-  //  Serial.print("LeftDistance (cm): ");
-  //  Serial.println(leftDistance);
+//  Serial.print("RightDistance (cm): ");
+//  Serial.println(rightDistance);
+//  Serial.print("LeftDistance (cm): ");
+//  Serial.println(leftDistance);
 }
 
 //#define DEBUG
@@ -181,22 +184,32 @@ void loop() {
         do_autonomous(distances);
       } else {
         if (inptr) {
-          do_manual(command,distances);
+          do_manual(command, distances);
         }
       }
 
       // LED STUFF
       if (distances.front == CLOSE) {
-        digitalWrite(2, LOW);
+        digitalWrite(FRONT_LED, LOW);
       } else {
-        digitalWrite(2, HIGH);
+        digitalWrite(FRONT_LED, HIGH);
       }
       if (distances.back == CLOSE) {
-        digitalWrite(1, LOW);
+        digitalWrite(BACK_LED, LOW);
       } else {
-        digitalWrite(1, HIGH);
+        digitalWrite(BACK_LED, HIGH);
       }
-      
+      //if (distances.left == CLOSE) {
+      //  digitalWrite(LEFT_LED, LOW);
+      //} else {
+      // digitalWrite(LEFT_LED, HIGH);
+      //}
+      //      if (distances.right == CLOSE) {
+      //        digitalWrite(RIGHT_LED, LOW);
+      //      } else {
+      //        digitalWrite(RIGHT_LED, HIGH);
+      //      }
+
       loopCount++;
     }
 

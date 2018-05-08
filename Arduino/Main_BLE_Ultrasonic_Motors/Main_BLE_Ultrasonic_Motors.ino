@@ -17,16 +17,24 @@ BLECharacteristic WildcatChar("2A37",  BLERead | BLENotify | BLEWrite, 2); // st
 
 int oldHeartRate = 0;  // last heart rate reading from analog input
 long previousMillis = 0;  // last time the heart rate was checked, in ms
-
+/*************************************************************
+  Pin constant assignments
+*************************************************************/
 /*Ultrasonic Sensors*/
-const int FRONT_TRIG_PIN = 5;
-const int FRONT_ECHO_PIN = 4;
-const int BACK_TRIG_PIN = 6;
-const int BACK_ECHO_PIN = 7;
-const int FRONT_RIGHT_TRIG_PIN = A4; //blue
-const int FRONT_RIGHT_ECHO_PIN = A5; //purple
-const int FRONT_LEFT_TRIG_PIN = A2; //grey
-const int FRONT_LEFT_ECHO_PIN = A3; //white
+const int FRONT_TRIG_PIN = A3;
+const int FRONT_ECHO_PIN = A2;
+const int BACK_TRIG_PIN = 3;
+const int BACK_ECHO_PIN = 2;
+const int FRONT_RIGHT_TRIG_PIN = 6; //A1
+const int FRONT_RIGHT_ECHO_PIN = 5; //A0
+const int FRONT_LEFT_TRIG_PIN = A5;
+const int FRONT_LEFT_ECHO_PIN = A4;
+
+/*LEDs*/
+//const int FRONT_LED = 6;  // FIRST
+//const int LEFT_LED = 5;    // SECOND
+const int FRONT_LED = 4;   // THIRD
+const int BACK_LED = 7;    // FOURTH
 
 /*Power Motor */
 const int POWER_DIR_PIN = 13;
@@ -38,6 +46,10 @@ const int DIR_DIR_PIN = 12;
 const int DIR_BRAKE_PIN = 9;
 const int DIR_PWM_PIN = 3;
 
+/*************************************************************
+MISC GLOBAL VARS
+*************************************************************/
+/*SonarVars*/
 long frontDuration;
 int frontDistance = 0;
 long backDuration;
@@ -47,8 +59,9 @@ int rightDistance = 0;
 long leftDuration;
 int leftDistance = 0;
 
-int state;
+// int state; // Unknown Var
 
+/*Android to Arduino Input Commands*/
 const int BRAKE_INPUT = 0;
 const int FORWARD_INPUT = 1;
 const int BACKWARDS_INPUT = 2;
@@ -57,11 +70,12 @@ const int RIGHT_INPUT = 4;
 const int STRAIGHT_INPUT = 5;
 const int AUTO_INPUT = 6;
 
+/*State Booleans*/
 bool isAutonomous = false;
-bool isReverse = false;
 
-const int CLOSE_THRESHOLD = 30;
-const int MEDIUM_THRESHOLD = 100;
+/*Distance Threshold Vars & Structs*/
+const int CLOSE_THRESHOLD = 30;   // cm
+const int MEDIUM_THRESHOLD = 100; // cm
 
 enum DistanceValue {
   CLOSE, 

@@ -1,5 +1,8 @@
+bool isReverse = false; 
+
 void do_manual(byte command, DistanceStruct distances) {
   switch (command) {
+
     // Drive Motor
     case BRAKE_INPUT:
       isReverse = false;
@@ -35,11 +38,11 @@ void do_manual(byte command, DistanceStruct distances) {
   }
 
   if (distances.front == CLOSE && !isReverse) {
-    Serial.println("braking");
     brake();
+    Serial.println("braking");
   }
   if (distances.back == CLOSE && isReverse) {
-    Serial.println("braking");
     brake();
+    Serial.println("braking");
   }
 }
