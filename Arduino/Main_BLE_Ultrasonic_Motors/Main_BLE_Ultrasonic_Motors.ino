@@ -23,7 +23,7 @@ long previousMillis = 0;  // last time the heart rate was checked, in ms
 /*Ultrasonic Sensors*/
 const int FRONT_TRIG_PIN = A3;
 const int FRONT_ECHO_PIN = A2;
-const int BACK_TRIG_PIN = 3;
+const int BACK_TRIG_PIN = 10;
 const int BACK_ECHO_PIN = 2;
 const int FRONT_RIGHT_TRIG_PIN = 6; //A1
 const int FRONT_RIGHT_ECHO_PIN = 5; //A0
