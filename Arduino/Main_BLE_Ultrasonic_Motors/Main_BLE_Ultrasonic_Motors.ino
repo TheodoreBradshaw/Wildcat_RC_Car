@@ -47,7 +47,7 @@ const int DIR_BRAKE_PIN = 9;
 const int DIR_PWM_PIN = 3;
 
 /*************************************************************
-MISC GLOBAL VARS
+  MISC GLOBAL VARS
 *************************************************************/
 /*SonarVars*/
 long frontDuration;
@@ -74,13 +74,14 @@ const int AUTO_INPUT = 6;
 bool isAutonomous = false;
 
 /*Distance Threshold Vars & Structs*/
+const int CLOSER_THRESHOLD = 10;
 const int CLOSE_THRESHOLD = 30;   // cm
-const int MEDIUM_THRESHOLD = 100; // cm
+const int MEDIUM_THRESHOLD = 60; // cm
 
 enum DistanceValue {
-  CLOSE, 
-  MEDIUM,
-  FAR,
+  CLOSE = 0,
+  MEDIUM = 1,
+  FAR = 2,
 };
 
 typedef struct DistanceStruct {
@@ -89,3 +90,9 @@ typedef struct DistanceStruct {
   enum DistanceValue left = FAR;
   enum DistanceValue back = FAR;
 } DistanceStruct;
+
+/*LED STUFF*/
+bool isLEDon = false;
+
+bool isReverse = false;
+

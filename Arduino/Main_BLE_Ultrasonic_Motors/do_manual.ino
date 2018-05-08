@@ -1,22 +1,18 @@
-bool isReverse = false; 
-
 void do_manual(byte command, DistanceStruct distances) {
   switch (command) {
 
     // Drive Motor
     case BRAKE_INPUT:
-      isReverse = false;
+      setReverse(false);
       brake();
       Serial.println("Would stop");
       break;
     case FORWARD_INPUT:
       setReverse(false);
-      isReverse = true;
       disableBrake();
       Serial.println("Would go forward");
       break;
     case BACKWARDS_INPUT:
-      isReverse = true;
       setReverse(true);
       disableBrake();
       Serial.println("Would go backward");

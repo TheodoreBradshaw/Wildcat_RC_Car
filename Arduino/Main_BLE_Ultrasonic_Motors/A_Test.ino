@@ -51,6 +51,7 @@ void setup() {
 
 //Funciton Defs
 void setReverse(bool isInReverse) {
+  isReverse = isInReverse;
   digitalWrite(POWER_DIR_PIN, isInReverse ? HIGH : LOW);
 }
 
@@ -111,10 +112,10 @@ void read_sonar_distances() {
   Serial.println(backDistance);
   Serial.print("FrontDistance (cm): ");
   Serial.println(frontDistance);
-//  Serial.print("RightDistance (cm): ");
-//  Serial.println(rightDistance);
-//  Serial.print("LeftDistance (cm): ");
-//  Serial.println(leftDistance);
+  //  Serial.print("RightDistance (cm): ");
+  //  Serial.println(rightDistance);
+  //  Serial.print("LeftDistance (cm): ");
+  //  Serial.println(leftDistance);
 }
 
 //#define DEBUG
@@ -143,8 +144,19 @@ void do_autonomous(DistanceStruct distances);
 
 void do_manual(byte command, DistanceStruct distances);
 
+/******************************************************************************************************************************************/
+//TOP OF THE LOOP
+/******************************************************************************************************************************************/
+
 void loop() {
+  int loopCount = 0;
+
   Serial.print("Looping... \n "); // print it
+  if (loopCount % 10000 == 0) {
+    digitalWrite(FRONT_LED, isLEDon ? HIGH : LOW);
+    digitalWrite(BACK_LED, isLEDon ? HIGH : LOW);
+    isLEDon = !isLEDon;
+  }
 
   // listen for BLE peripherals to connect:
   BLECentral central = blePeripheral.central();
@@ -160,7 +172,6 @@ void loop() {
 
     // check the heart rate measurement every 200ms
     // as long as the central is still connected:
-    int loopCount = 0;
     DistanceStruct distances;
 
     while (central.connected())
@@ -219,4 +230,6 @@ void loop() {
     Serial.print("Disconnected from central: ");
     Serial.println(central.address());
   }
+  loopCount++;
+  Serial.println(loopCount);
 }
