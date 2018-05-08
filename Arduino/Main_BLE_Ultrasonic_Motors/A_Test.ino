@@ -108,14 +108,14 @@ void read_sonar_distances() {
   backDuration =  pulseIn(BACK_ECHO_PIN, HIGH);
   backDistance = backDuration * 0.034 / 2; //frontDistance in CM
 
-  Serial.print("BackDistance (cm): ");
-  Serial.println(backDistance);
+//  Serial.print("BackDistance (cm): ");
+//  Serial.println(backDistance);
   Serial.print("FrontDistance (cm): ");
   Serial.println(frontDistance);
-  //  Serial.print("RightDistance (cm): ");
-  //  Serial.println(rightDistance);
-  //  Serial.print("LeftDistance (cm): ");
-  //  Serial.println(leftDistance);
+    Serial.print("RightDistance (cm): ");
+    Serial.println(rightDistance);
+    Serial.print("LeftDistance (cm): ");
+    Serial.println(leftDistance);
 }
 
 //#define DEBUG
